@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Gym Master</title>
+    <style>
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800">
+    <div class="max-w-7xl mx-auto p-4 md:p-10">
+        
+        <header class="flex flex-col lg:flex-row justify-between items-center mb-10 gap-6">
+            <div class="text-center lg:text-left">
+                <h1 class="text-3xl md:text-4xl font-black italic uppercase tracking-tighter">Gym <span class="text-blue-600">Master</span></h1>
+                <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em]">
+                    {{ 'Mis Favoritos' if viendo_favoritos else '' }}
+                </p>
+            </div>
+            
+            <div class="flex flex-wrap justify-center items-center gap-3 w-full lg:w-auto">
+                <input type="text" id="buscador" onkeyup="filtrar()" placeholder="Buscar rutina..." 
+                    class="flex-grow md:flex-none p-4 rounded-2xl border-2 border-slate-200 outline-none focus:border-blue-500 w-full md:w-64 text-sm">
+                
+                <div class="flex gap-2">
+                    <a href="{{ url_for('main.ver_favoritos') if not viendo_favoritos else url_for('main.index') }}" 
+                        class="p-4 rounded-2xl border-2 shadow-sm transition {{ 'bg-pink-500 border-pink-500' if viendo_favoritos else 'bg-white border-slate-200' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 {{ 'text-white' if viendo_favoritos else 'text-pink-500' }}" fill="{{ 'currentColor' if viendo_favoritos else 'none' }}" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                    </a>
+
+                    {% if current_user.is_admin %}
+                    <a href="{{ url_for('main.crear') }}" class="bg-blue-600 text-white px-5 py-4 rounded-2xl font-bold uppercase text-xs flex items-center">Nueva</a>
+                    {% endif %}
+                    <a href="{{ url_for('auth.logout') }}" class="bg-slate-800 text-white p-4 rounded-2xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <div id="grid-planes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {% for p in planes %}
+            <div class="card-plan bg-white rounded-2xl overflow-hidden shadow-sm relative border border-slate-100 flex flex-col h-[500px] group transition hover:shadow-xl">                
+                <div class="absolute top-4 right-4 z-20 bg-yellow-400 text-slate-900 px-3 py-1 rounded-full font-black text-[10px] shadow-md flex items-center gap-1">
+                    ★ {{ p.media_estrellas }}
+                </div>
+
+                <div class="w-full aspect-video overflow-hidden bg-slate-200">
+                    <img src="{{ url_for('static', filename='uploads/' + p.imagen_portada) }}" 
+                    class="w-full h-full object-fill transition duration-500 group-hover:scale-105"
+                    alt="{{ p.titulo }}">
+                </div>
+                
+                <div class="p-6 flex flex-col flex-grow">
+                    <h2 class="titulo-plan text-lg md:text-xl font-black text-slate-800 uppercase mb-3">{{ p.titulo }}</h2>
+                    
+                    <div class="text-slate-400 text-xs md:text-sm line-clamp-3 mb-6 leading-relaxed flex-grow">
+                        {% for s in p.secciones %}
+                            {{ s.contenido }}{% if not loop.last %} | {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <div class="mt-auto flex gap-2">
+                        <a href="{{ url_for('main.ver_plan', id=p.id) }}" class="flex-grow bg-slate-900 text-white text-center py-4 rounded-2xl font-bold uppercase text-xs tracking-[0.2em] transition hover:bg-blue-600">Ver Plan</a>
+                        
+                        {% if current_user.is_admin %}
+                        <a href="{{ url_for('main.eliminar', id=p.id) }}" 
+                        onclick="return confirm('¿Eliminar plan?')" 
+                        class="bg-red-100 text-red-600 p-4 rounded-2xl hover:bg-red-600 hover:text-white transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script>
+        function filtrar() {
+            let val = document.getElementById('buscador').value.toLowerCase();
+            let cards = document.getElementsByClassName('card-plan');
+            for(let c of cards) {
+                let txt = c.querySelector('.titulo-plan').innerText.toLowerCase();
+                c.style.display = txt.includes(val) ? "" : "none";
+            }
+        }
+    </script>
+</body>
+</html>
