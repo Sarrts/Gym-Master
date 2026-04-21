@@ -1,0 +1,19 @@
+1. en el archivo init cambiar las credenciales por las tuyas
+
+    DB_USER = "postgres"
+    DB_PASS = "1234"
+    DB_HOST = "localhost"
+    DB_PORT = "5432"
+    DB_NAME = "fitness_db"
+
+2. Crear la base de datos
+    en la terminal pones: psql -U postgres
+
+3. crear la 
+    CREATE DATABASE fitness_db;
+
+4. librerias 
+    pip install -r requirements.txt
+
+5. probar la vaina
+    en la terminal de projecto: python run.py
